@@ -63,6 +63,54 @@ public class HexMesh : MonoBehaviour
         }
     }
 
+    // private void Triangulate(HexDirection direction, HexCell cell)
+    // {
+    //     /**
+    //         --d---f--
+    //          \|   |/
+    //           b---c
+    //            \ /
+    //             a
+    //      */ 
+    //     Vector3 center = cell.transform.localPosition;
+    //     Vector3 a = center;
+    //     Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
+    //     Vector3 c = center + HexMetrics.GetSecondSolidCorner(direction);
+
+    //     AddTriangle(a, b, c);
+    //     AddTriangleColor(cell.color);
+
+    //     Vector3 bridge = HexMetrics.GetBridge(direction);
+    //     Vector3 d = b + bridge;
+    //     Vector3 f = c + bridge;
+
+    //     AddQuad(b, c, d, f);
+
+    //     HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
+    //     HexCell neighbor     = cell.GetNeighbor(direction) ?? cell;
+    //     HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
+
+    //     Color bridgeColor = (cell.color + neighbor.color) * 0.5f;
+    //     AddQuadColor(cell.color, bridgeColor);
+
+    //     // 填充空隙
+    //     // 1. 第一个三角形
+    //     AddTriangle(b, center + HexMetrics.GetFirstCorner(direction), d);
+    //     AddTriangleColor(
+    //         cell.color,
+    //         (cell.color + prevNeighbor.color + neighbor.color) / 3f,
+    //         bridgeColor
+    //     );
+    //     // 2. 第二个三角形
+    //     AddTriangle(c, f, center + HexMetrics.GetSecondCorner(direction));
+    //     AddTriangleColor(
+    //         cell.color,
+    //         bridgeColor,
+    //         (cell.color + neighbor.color + nextNeighbor.color) / 3f
+    //     );
+    // }
+
+
     private void Triangulate(HexDirection direction, HexCell cell)
     {
         /**
@@ -72,6 +120,7 @@ public class HexMesh : MonoBehaviour
                \ /
                 a
          */ 
+
         Vector3 center = cell.transform.localPosition;
         Vector3 a = center;
         Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
@@ -80,35 +129,37 @@ public class HexMesh : MonoBehaviour
         AddTriangle(a, b, c);
         AddTriangleColor(cell.color);
 
+        if (direction <= HexDirection.SE)
+        {
+            TriangulateConnection(direction, cell, b, c);
+        }
+
+    }
+
+    // 三角化连接处的两个桥组成的长方形
+    private void TriangulateConnection(HexDirection direction, HexCell cell, Vector3 b, Vector3 c)
+    {
+        HexCell neighbor = cell.GetNeighbor(direction);
+        if (neighbor == null)
+        {
+            return;
+        }
         Vector3 bridge = HexMetrics.GetBridge(direction);
+
         Vector3 d = b + bridge;
         Vector3 f = c + bridge;
 
         AddQuad(b, c, d, f);
+        AddQuadColor(cell.color, neighbor.color);
 
-        HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
-        HexCell neighbor     = cell.GetNeighbor(direction) ?? cell;
-        HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
-
-        Color bridgeColor = (cell.color + neighbor.color) * 0.5f;
-        AddQuadColor(cell.color, bridgeColor);
-
-        // 填充空隙
-        // 1. 第一个三角形
-        AddTriangle(b, center + HexMetrics.GetFirstCorner(direction), d);
-        AddTriangleColor(
-            cell.color,
-            (cell.color + prevNeighbor.color + neighbor.color) / 3f,
-            bridgeColor
-        );
-        // 2. 第二个三角形
-        AddTriangle(c, f, center + HexMetrics.GetSecondCorner(direction));
-        AddTriangleColor(
-            cell.color,
-            bridgeColor,
-            (cell.color + neighbor.color + nextNeighbor.color) / 3f
-        );
+        HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
+        if (direction <= HexDirection.E && nextNeighbor != null)
+        {
+            AddTriangle(c, f, c + HexMetrics.GetBridge(direction.Next()));
+            AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
+        }
     }
+
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
     {

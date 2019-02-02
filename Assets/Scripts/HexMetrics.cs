@@ -53,7 +53,13 @@ public static class HexMetrics
 
     public static Vector3 GetBridge(HexDirection direction)
     {
-        return (corners[(int)direction] + corners[GetNextDirection(direction)]) * 0.5f * blendFactor;
+        /** 桥的进化 
+            1.!-- 原先的时候 是每个六边形的一边内有个桥
+            2.!-- 现在将每边相邻的两个桥合成一个长方形 即直接乘以2即可
+        */ 
+        
+        // return (corners[(int)direction] + corners[GetNextDirection(direction)]) * 0.5f * blendFactor;
+        return (corners[(int)direction] + corners[GetNextDirection(direction)]) * blendFactor;
     }
 
 }
