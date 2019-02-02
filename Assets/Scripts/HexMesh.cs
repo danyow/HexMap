@@ -65,6 +65,13 @@ public class HexMesh : MonoBehaviour
 
     private void Triangulate(HexDirection direction, HexCell cell)
     {
+        /**
+            --d---f--
+             \|   |/
+              b---c
+               \ /
+                a
+         */ 
         Vector3 center = cell.transform.localPosition;
         Vector3 a = center;
         Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
@@ -79,14 +86,27 @@ public class HexMesh : MonoBehaviour
 
         AddQuad(b, c, d, f);
 
-
         HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
         HexCell neighbor     = cell.GetNeighbor(direction) ?? cell;
         HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
 
-        AddQuadColor(
+        Color bridgeColor = (cell.color + neighbor.color) * 0.5f;
+        AddQuadColor(cell.color, bridgeColor);
+
+        // 填充空隙
+        // 1. 第一个三角形
+        AddTriangle(b, center + HexMetrics.GetFirstCorner(direction), d);
+        AddTriangleColor(
             cell.color,
-            (cell.color + neighbor.color) * 0.5f
+            (cell.color + prevNeighbor.color + neighbor.color) / 3f,
+            bridgeColor
+        );
+        // 2. 第二个三角形
+        AddTriangle(c, f, center + HexMetrics.GetSecondCorner(direction));
+        AddTriangleColor(
+            cell.color,
+            bridgeColor,
+            (cell.color + neighbor.color + nextNeighbor.color) / 3f
         );
     }
 
