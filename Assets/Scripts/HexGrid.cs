@@ -85,15 +85,20 @@ public class HexGrid : MonoBehaviour
 
     void TouchCell(Vector3 pos)
     {
+        // ColorCell(pos, touchedColor);
+    }
+
+
+    public void ColorCell(Vector3 pos, Color color)
+    {
         pos = transform.InverseTransformPoint(pos);
 
         HexCoordinates coordinates = HexCoordinates.FromPosition(pos);
         int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
         HexCell cell = cells[index];
-        cell.color = touchedColor;
+        cell.color = color;
         hexMesh.Triangulate(cells);
 
-        Debug.Log("touched at " + coordinates.ToString());
     }
 
 }
