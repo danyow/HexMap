@@ -243,6 +243,19 @@ public class HexMesh : MonoBehaviour
                 TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
                 return;
             }
+            if (rightEdgeType == HexEdgeType.Flat)
+            {
+                TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
+                return;
+            }
+        }
+        if (rightEdgeType == HexEdgeType.Slope)
+        {
+            if (leftEdgeType == HexEdgeType.Flat)
+            {
+                TriangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+                return;
+            }
         }
 
         AddTriangle(bottom, left, right);
@@ -260,6 +273,27 @@ public class HexMesh : MonoBehaviour
 
         AddTriangle(begin, d, f);
         AddTriangleColor(beginCell.color, colorC, colorD);
+
+
+        for (int i = 2; i < HexMetrics.terraceSteps; i++)
+        {
+            Vector3 b = d;
+            Vector3 c = f;
+            Color colorA = colorC;
+            Color colorB = colorD;
+
+            d = HexMetrics.TerraceLerp(begin, left, i);
+            f = HexMetrics.TerraceLerp(begin, right, i);
+            colorC = HexMetrics.TerraceLerp(beginCell.color, leftCell.color, i);
+            colorD = HexMetrics.TerraceLerp(beginCell.color, rightCell.color, i);
+            AddQuad(b, c, d, f);
+            AddQuadColor(colorA, colorB, colorC, colorD);
+        }
+
+
+        AddQuad(d, f, left, right);
+        AddQuadColor(colorC, colorD, leftCell.color, rightCell.color);
+
     }
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
@@ -329,6 +363,14 @@ public class HexMesh : MonoBehaviour
         colors.Add(c1);
         colors.Add(c2);   
         colors.Add(c2);   
+    }
+
+    private void AddQuadColor(Color c1, Color c2, Color c3, Color c4)
+    {
+        colors.Add(c1);
+        colors.Add(c2);
+        colors.Add(c3);   
+        colors.Add(c4);   
     }
 
 }

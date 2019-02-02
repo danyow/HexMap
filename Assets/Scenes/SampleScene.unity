@@ -544,13 +544,13 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 6
   m_WholeNumbers: 1
-  m_Value: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 789405065}
         m_MethodName: SetElevation
-        m_Mode: 4
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -702,13 +702,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534669902}
-  m_LocalRotation: {x: -0.35249668, y: 0.01222649, z: -0.004706338, w: -0.9357214}
-  m_LocalPosition: {x: 46.402397, y: 36.94555, z: -26.628036}
+  m_LocalRotation: {x: 0.63667834, y: -0.0030721049, z: 0.0027142751, w: 0.7711186}
+  m_LocalPosition: {x: 46.90689, y: 75.59, z: 19.810555}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 54.593002, y: 0.526, z: 0.381}
+  m_LocalEulerAnglesHint: {x: 79.09, y: -0.388, z: 0.083000004}
 --- !u!1 &572691999
 GameObject:
   m_ObjectHideFlags: 0
