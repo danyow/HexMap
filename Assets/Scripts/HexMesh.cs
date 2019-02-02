@@ -45,18 +45,49 @@ public class HexMesh : MonoBehaviour
 
     private void Triangulate(HexCell cell)
     {
-        Vector3 center = cell.transform.localPosition;
-        for (int i = 0; i < HexMetrics.corners.Length; i++)
+        // Vector3 center = cell.transform.localPosition;
+        // for (int i = 0; i < HexMetrics.corners.Length; i++)
+        // {
+        //     int curIndex = i;
+        //     int nextIndex = i + 1 == HexMetrics.corners.Length ? 0 :  i + 1;
+        //     AddTriangle(
+        //         center,
+        //         center + HexMetrics.corners[curIndex],
+        //         center + HexMetrics.corners[nextIndex]
+        //     );
+        //     AddTriangleColor(cell.color);
+        // }
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
         {
-            int curIndex = i;
-            int nextIndex = i + 1 == HexMetrics.corners.Length ? 0 :  i + 1;
-            AddTriangle(
-                center,
-                center + HexMetrics.corners[curIndex],
-                center + HexMetrics.corners[nextIndex]
-            );
-            AddTriangleColor(cell.color);
+            Triangulate(d, cell);
         }
+    }
+
+    private void Triangulate(HexDirection direction, HexCell cell)
+    {
+        Vector3 center = cell.transform.localPosition;
+        Vector3 a = center;
+        Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
+        Vector3 c = center + HexMetrics.GetSecondSolidCorner(direction);
+
+        AddTriangle(a, b, c);
+        AddTriangleColor(cell.color);
+
+        Vector3 bridge = HexMetrics.GetBridge(direction);
+        Vector3 d = b + bridge;
+        Vector3 f = c + bridge;
+
+        AddQuad(b, c, d, f);
+
+
+        HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
+        HexCell neighbor     = cell.GetNeighbor(direction) ?? cell;
+        HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
+
+        AddQuadColor(
+            cell.color,
+            (cell.color + neighbor.color) * 0.5f
+        );
     }
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
@@ -76,6 +107,47 @@ public class HexMesh : MonoBehaviour
         colors.Add(color);
         colors.Add(color);
         colors.Add(color);
+    }
+
+    private void AddTriangleColor(Color c1, Color c2, Color c3)
+    {
+        colors.Add(c1);
+        colors.Add(c2);
+        colors.Add(c3);
+    }
+
+
+    private void AddQuad(Vector3 b, Vector3 c, Vector3 d, Vector3 f)
+    {
+
+        /**
+            d-------f
+             \     /
+              b---c
+               \ /
+                a
+         */ 
+
+        int vertexIndex = vertices.Count;
+        vertices.Add(b);
+        vertices.Add(c);
+        vertices.Add(d);
+        vertices.Add(f);
+
+        triangles.Add(vertexIndex);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 3);
+    }
+
+    private void AddQuadColor(Color c1, Color c2)
+    {
+        colors.Add(c1);
+        colors.Add(c1);
+        colors.Add(c2);   
+        colors.Add(c2);   
     }
 
 }

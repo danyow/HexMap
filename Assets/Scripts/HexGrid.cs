@@ -53,6 +53,33 @@ public class HexGrid : MonoBehaviour
         cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
         cell.color = defaultColor;
 
+        if (x > 0)
+        {
+            cell.SetNeighbor(HexDirection.W, cells[i - 1]);
+        }
+
+        if (z > 0)
+        {
+            // z & 1 用来区分是偶数
+            if ((z & 1 ) == 0)
+            {
+                cell.SetNeighbor(HexDirection.SE, cells[i - width]);
+                if (x > 0)
+                {
+                    cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                }
+            }
+            else
+            {
+                cell.SetNeighbor(HexDirection.SW, cells[i - width]);
+                if (x < width - 1)
+                {
+                    cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                }
+            }
+        }
+
+
         CreateCellLabel(x, z, i, pos, cell.coordinates.ToStringOnSeparateLines());
     }
 
@@ -73,7 +100,6 @@ public class HexGrid : MonoBehaviour
         HexCell cell = cells[index];
         cell.color = color;
         hexMesh.Triangulate(cells);
-
     }
 
 }
