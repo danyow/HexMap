@@ -241,29 +241,37 @@ public class HexMesh : MonoBehaviour
             if (rightEdgeType == HexEdgeType.Slope)
             {
                 TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
-                return;
             }
             if (rightEdgeType == HexEdgeType.Flat)
             {
                 TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
-                return;
             }
             TriangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell);
-            return;
-        }
-        if (rightEdgeType == HexEdgeType.Slope)
+        } 
+        else if (rightEdgeType == HexEdgeType.Slope)
         {
             if (leftEdgeType == HexEdgeType.Flat)
             {
                 TriangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
-                return;
             }
             TriangulateCornerCliffTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
-            return;
         }
-
-        AddTriangle(bottom, left, right);
-        AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
+        else if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope)
+        {
+            if (leftCell.Elevation < rightCell.Elevation)
+            {
+                TriangulateCornerCliffTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+            }
+            else
+            {
+                TriangulateCornerTerracesCliff(left, leftCell, right, rightCell, bottom, bottomCell);
+            }
+        }
+        else
+        {
+            AddTriangle(bottom, left, right);
+            AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
+        }
     }
 
     // ssf 也就是说 lb为斜面 rb也为斜面的 lr为平面的情况
@@ -301,7 +309,7 @@ public class HexMesh : MonoBehaviour
 
     private void TriangulateCornerTerracesCliff(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell)
     {
-        float   t             = 1f / (rightCell.Elevation - beginCell.Elevation);
+        float   t             = Mathf.Abs(1f / (rightCell.Elevation - beginCell.Elevation));
         Vector3 boundary      = Vector3.Lerp(begin, right, t);
         Color   boundaryColor = Color.Lerp(beginCell.color, rightCell.color, t);
 
@@ -320,7 +328,7 @@ public class HexMesh : MonoBehaviour
 
     private void TriangulateCornerCliffTerraces(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell)
     {
-        float   t             = 1f / (leftCell.Elevation - beginCell.Elevation);
+        float   t             = Mathf.Abs(1f / (leftCell.Elevation - beginCell.Elevation));
         Vector3 boundary      = Vector3.Lerp(begin, left, t);
         Color   boundaryColor = Color.Lerp(beginCell.color, leftCell.color, t);
 
