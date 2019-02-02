@@ -21,7 +21,6 @@ public static class HexMetrics
     // 垂直插值值
     public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
 
-
     // XZ轴的平面
     public static Vector3[] corners = {
         new Vector3(0,            0, outerRadius * 1),
@@ -90,4 +89,16 @@ public static class HexMetrics
         return Color.Lerp(a, b, h);
     }
 
+    public static HexEdgeType GetEdgeType(int elevation1, int elevation2)
+    {
+        if (elevation1 == elevation2)
+        {
+            return HexEdgeType.Flat;
+        }
+        if (Mathf.Abs(elevation2 - elevation1) == 1)
+        {
+            return HexEdgeType.Slope;   
+        }
+        return HexEdgeType.Cliff;
+    }
 }

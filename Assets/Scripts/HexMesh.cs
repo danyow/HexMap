@@ -114,13 +114,18 @@ public class HexMesh : MonoBehaviour
     private void Triangulate(HexDirection direction, HexCell cell)
     {
         /**
-            --d---f--
+            --d---f--e
              \|   |/
               b---c
                \ /
                 a
+            b = v1
+            c = v2
+            d = v3
+            f = v4
+            e = v5
          */ 
-
+        
         Vector3 center = cell.transform.localPosition;
         Vector3 a = center;
         Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
@@ -151,18 +156,46 @@ public class HexMesh : MonoBehaviour
 
         d.y = f.y = neighbor.Elevation * HexMetrics.elevationStep;
 
-        TriangulateEdgeTerraces(b, c, cell, d, f, neighbor);
+        if (cell.GetEdgeType(direction) == HexEdgeType.Slope)
+        {
+            TriangulateEdgeTerraces(b, c, cell, d, f, neighbor);
+        } 
+        else
+        {
+            AddQuad(b, c, d, f);
+            AddQuadColor(cell.color, neighbor.color);     
+        }
 
-        // AddQuad(b, c, d, f);
-        // AddQuadColor(cell.color, neighbor.color);
 
         HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
         if (direction <= HexDirection.E && nextNeighbor != null)
         {
             Vector3 e = c + HexMetrics.GetBridge(direction.Next());
             e.y = nextNeighbor.Elevation * HexMetrics.elevationStep;
-            AddTriangle(c, f, e);
-            AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
+            // 找的三角化的角部里面最低的cell是哪个
+            if (cell.Elevation <= neighbor.Elevation)
+            {
+                if (cell.Elevation <= nextNeighbor.Elevation)
+                {
+                    TriangulateCorner(c, cell, f, neighbor, e, nextNeighbor);
+                }
+                else
+                {
+                    TriangulateCorner(e, nextNeighbor, c, cell, f, neighbor);
+                }
+            } 
+            else if (neighbor.Elevation <= nextNeighbor.Elevation)
+            {
+                TriangulateCorner(f, neighbor, e, nextNeighbor, c, cell);
+            } 
+            else
+            {
+                TriangulateCorner(e, nextNeighbor, c, cell, f, neighbor);
+            }
+
+
+            // AddTriangle(c, f, e);
+            // AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
         }
     }
 
@@ -171,16 +204,63 @@ public class HexMesh : MonoBehaviour
 
         Vector3 d = HexMetrics.TerraceLerp(beginLeft, endLeft, 1);
         Vector3 f = HexMetrics.TerraceLerp(beginRight, endRight, 1);
-        Color color = HexMetrics.TerraceLerp(beginCell.color, endCell.color, 1);
+        Color colorB = HexMetrics.TerraceLerp(beginCell.color, endCell.color, 1);
 
         AddQuad(beginLeft, beginRight, d, f);
-        AddQuadColor(beginCell.color, color);
+        AddQuadColor(beginCell.color, colorB);
 
+        for (int i = 2; i < HexMetrics.terraceSteps; i++)
+        {
+            Vector3 b      = d;
+            Vector3 c      = f;
+            Color   colorA = colorB;
+            d      = HexMetrics.TerraceLerp(beginLeft, endLeft, i);
+            f      = HexMetrics.TerraceLerp(beginRight, endRight, i);
+            colorB = HexMetrics.TerraceLerp(beginCell.color, endCell.color, i);
+            AddQuad(b, c, d, f);
+            AddQuadColor(colorA, colorB);
+        }
 
         AddQuad(d, f, endLeft, endRight);
-        AddQuadColor(color, endCell.color);
+        AddQuadColor(colorB, endCell.color);
     }
 
+    private void TriangulateCorner(Vector3 bottom, HexCell bottomCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell)
+    {
+        /**
+            b要为最低的 bottom
+               L---R
+                \B/
+         */
+
+        HexEdgeType leftEdgeType = bottomCell.GetEdgeType(leftCell);
+        HexEdgeType rightEdgeType = bottomCell.GetEdgeType(rightCell);
+
+        if (leftEdgeType == HexEdgeType.Slope)
+        {
+            if (rightEdgeType == HexEdgeType.Slope)
+            {
+                TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
+                return;
+            }
+        }
+
+        AddTriangle(bottom, left, right);
+        AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
+    }
+
+    // ssf 也就是说 lb为斜面 rb也为斜面的 lr为平面的情况
+    private void TriangulateCornerTerraces(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell)
+    {
+        Vector3 d = HexMetrics.TerraceLerp(begin, left, 1);
+        Vector3 f = HexMetrics.TerraceLerp(begin, right, 1);
+
+        Color colorC = HexMetrics.TerraceLerp(beginCell.color, leftCell.color, 1);
+        Color colorD = HexMetrics.TerraceLerp(beginCell.color, rightCell.color, 1);
+
+        AddTriangle(begin, d, f);
+        AddTriangleColor(beginCell.color, colorC, colorD);
+    }
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
     {

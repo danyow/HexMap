@@ -1,8 +1,8 @@
 ﻿/** 
         *N*
-    NW      NE
-W               E
-    SW      SE
+    NW.6    NE.1
+W.5             E.2
+    SW.4    SE.3
         *S*
 
 */
