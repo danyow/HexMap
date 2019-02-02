@@ -5,8 +5,27 @@ using UnityEngine;
 public class HexCell : MonoBehaviour
 {
     public HexCoordinates coordinates;
-
     public Color color;
+    public RectTransform uiRect;
+    private int elevation;
+    public int Elevation
+    {
+        get { return elevation;}
+        set { 
+            elevation = value;
+            Vector3 pos = transform.localPosition;
+            pos.y = value * HexMetrics.elevationStep;
+            transform.localPosition = pos;
+
+            // 这里的uiRect其实就已经是label的了
+            Vector3 uiPosition = uiRect.localPosition;
+            uiPosition.z = elevation * -HexMetrics.elevationStep;
+            uiRect.localPosition = uiPosition;
+
+        }
+    }
+    
+
 
     [SerializeField]
     HexCell[] neighbors;

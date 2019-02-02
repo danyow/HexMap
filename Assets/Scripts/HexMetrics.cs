@@ -10,6 +10,8 @@ public static class HexMetrics
     public const float solidFactor = 0.75f;
     // 混合区域
     public const float blendFactor = 1 - solidFactor;
+    // 阶梯高度
+    public const float elevationStep = 5;
 
 
     // XZ轴的平面
