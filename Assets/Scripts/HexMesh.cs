@@ -149,20 +149,46 @@ public class HexMesh : MonoBehaviour
         Vector3 d = b + bridge;
         Vector3 f = c + bridge;
 
-        AddQuad(b, c, d, f);
-        AddQuadColor(cell.color, neighbor.color);
+        d.y = f.y = neighbor.Elevation * HexMetrics.elevationStep;
+
+        TriangulateEdgeTerraces(b, c, cell, d, f, neighbor);
+
+        // AddQuad(b, c, d, f);
+        // AddQuadColor(cell.color, neighbor.color);
 
         HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
         if (direction <= HexDirection.E && nextNeighbor != null)
         {
-            AddTriangle(c, f, c + HexMetrics.GetBridge(direction.Next()));
+            Vector3 e = c + HexMetrics.GetBridge(direction.Next());
+            e.y = nextNeighbor.Elevation * HexMetrics.elevationStep;
+            AddTriangle(c, f, e);
             AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
         }
+    }
+
+    private void TriangulateEdgeTerraces(Vector3 beginLeft, Vector3 beginRight, HexCell beginCell, Vector3 endLeft, Vector3 endRight, HexCell endCell)
+    {
+
+        Vector3 d = HexMetrics.TerraceLerp(beginLeft, endLeft, 1);
+        Vector3 f = HexMetrics.TerraceLerp(beginRight, endRight, 1);
+        Color color = HexMetrics.TerraceLerp(beginCell.color, endCell.color, 1);
+
+        AddQuad(beginLeft, beginRight, d, f);
+        AddQuadColor(beginCell.color, color);
+
+
+        AddQuad(d, f, endLeft, endRight);
+        AddQuadColor(color, endCell.color);
     }
 
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
+
+        Debug.DrawLine(a, b, Color.black);
+        Debug.DrawLine(b, c, Color.black);
+        Debug.DrawLine(c, a, Color.black);
+
         int vertexIndex = vertices.Count;
         vertices.Add(a);
         vertices.Add(b);
@@ -190,15 +216,19 @@ public class HexMesh : MonoBehaviour
 
     private void AddQuad(Vector3 b, Vector3 c, Vector3 d, Vector3 f)
     {
-
         /**
-            d-------f
-             \     /
-              b---c
-               \ /
-                a
-         */ 
-
+            d-----f
+            |\    |
+            | \   |
+            |  \  |
+            |   \ |
+            |    \|
+            b-----c             
+         */
+        Debug.DrawLine(b, c, Color.black);
+        Debug.DrawLine(c, d, Color.black);
+        Debug.DrawLine(d, f, Color.black);
+        Debug.DrawLine(f, b, Color.black);
         int vertexIndex = vertices.Count;
         vertices.Add(b);
         vertices.Add(c);

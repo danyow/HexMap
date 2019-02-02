@@ -25,8 +25,6 @@ public class HexCell : MonoBehaviour
         }
     }
     
-
-
     [SerializeField]
     HexCell[] neighbors;
 

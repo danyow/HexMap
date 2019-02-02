@@ -12,6 +12,14 @@ public static class HexMetrics
     public const float blendFactor = 1 - solidFactor;
     // 阶梯高度
     public const float elevationStep = 5;
+    // 每个斜坡的平台数木
+    public const int terracesPerSlope = 2;
+    // 斜坡数
+    public const int terraceSteps = terracesPerSlope * 2 + 1;
+    // 水平插值值
+    public const float horizontalTerraceStepSize = 1f / terraceSteps;
+    // 垂直插值值
+    public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
 
 
     // XZ轴的平面
@@ -62,6 +70,24 @@ public static class HexMetrics
         
         // return (corners[(int)direction] + corners[GetNextDirection(direction)]) * 0.5f * blendFactor;
         return (corners[(int)direction] + corners[GetNextDirection(direction)]) * blendFactor;
+    }
+
+    // Y坐标必须在奇数阶梯中改变 不能在偶数阶梯内改变
+    public static Vector3 TerraceLerp(Vector3 a, Vector3 b, int step)
+    {
+        float h = step * HexMetrics.horizontalTerraceStepSize;
+        a.x += (b.x - a.x) * h;
+        a.z += (b.z - a.z) * h;
+
+        float v = ((step + 1) / 2) * HexMetrics.verticalTerraceStepSize;
+        a.y += (b.y - a.y) * v;
+        return a;
+    }
+
+    public static Color TerraceLerp(Color a, Color b, int step)
+    {
+        float h = step * HexMetrics.horizontalTerraceStepSize;
+        return Color.Lerp(a, b, h);
     }
 
 }
