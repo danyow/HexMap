@@ -20,6 +20,14 @@ public static class HexMetrics
     public const float horizontalTerraceStepSize = 1f / terraceSteps;
     // 垂直插值值
     public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
+    // 噪音源
+    public static Texture2D noiseSource;
+    // 微扰幅度
+    public const float cellPerturbStrength = 5;
+    // 噪音覆盖区域大小
+    public const float noiseScale = 0.003f;
+    // 微扰高度
+    public const float elevationPerturbStrength = 1.5f;
 
     // XZ轴的平面
     public static Vector3[] corners = {
@@ -100,5 +108,14 @@ public static class HexMetrics
             return HexEdgeType.Slope;   
         }
         return HexEdgeType.Cliff;
+    }
+
+    // 噪音取样的4D向量
+    public static Vector4 SampleNoise(Vector3 position)
+    {
+        return noiseSource.GetPixelBilinear(
+            position.x * noiseScale, 
+            position.z * noiseScale
+        );
     }
 }

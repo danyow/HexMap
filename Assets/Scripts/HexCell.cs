@@ -15,15 +15,23 @@ public class HexCell : MonoBehaviour
             elevation = value;
             Vector3 pos = transform.localPosition;
             pos.y = value * HexMetrics.elevationStep;
+            pos.y += (HexMetrics.SampleNoise(pos).y * 2f - 1f) * HexMetrics.elevationPerturbStrength;
             transform.localPosition = pos;
 
             // 这里的uiRect其实就已经是label的了
             Vector3 uiPosition = uiRect.localPosition;
-            uiPosition.z = elevation * -HexMetrics.elevationStep;
+            uiPosition.z = -pos.y;
             uiRect.localPosition = uiPosition;
 
         }
     }
+
+    public Vector3 Position { 
+        get {
+            return transform.localPosition;
+        } 
+    }
+
     
     [SerializeField]
     HexCell[] neighbors;

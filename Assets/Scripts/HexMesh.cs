@@ -45,71 +45,11 @@ public class HexMesh : MonoBehaviour
 
     private void Triangulate(HexCell cell)
     {
-        // Vector3 center = cell.transform.localPosition;
-        // for (int i = 0; i < HexMetrics.corners.Length; i++)
-        // {
-        //     int curIndex = i;
-        //     int nextIndex = i + 1 == HexMetrics.corners.Length ? 0 :  i + 1;
-        //     AddTriangle(
-        //         center,
-        //         center + HexMetrics.corners[curIndex],
-        //         center + HexMetrics.corners[nextIndex]
-        //     );
-        //     AddTriangleColor(cell.color);
-        // }
         for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
         {
             Triangulate(d, cell);
         }
     }
-
-    // private void Triangulate(HexDirection direction, HexCell cell)
-    // {
-    //     /**
-    //         --d---f--
-    //          \|   |/
-    //           b---c
-    //            \ /
-    //             a
-    //      */ 
-    //     Vector3 center = cell.transform.localPosition;
-    //     Vector3 a = center;
-    //     Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
-    //     Vector3 c = center + HexMetrics.GetSecondSolidCorner(direction);
-
-    //     AddTriangle(a, b, c);
-    //     AddTriangleColor(cell.color);
-
-    //     Vector3 bridge = HexMetrics.GetBridge(direction);
-    //     Vector3 d = b + bridge;
-    //     Vector3 f = c + bridge;
-
-    //     AddQuad(b, c, d, f);
-
-    //     HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
-    //     HexCell neighbor     = cell.GetNeighbor(direction) ?? cell;
-    //     HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
-
-    //     Color bridgeColor = (cell.color + neighbor.color) * 0.5f;
-    //     AddQuadColor(cell.color, bridgeColor);
-
-    //     // 填充空隙
-    //     // 1. 第一个三角形
-    //     AddTriangle(b, center + HexMetrics.GetFirstCorner(direction), d);
-    //     AddTriangleColor(
-    //         cell.color,
-    //         (cell.color + prevNeighbor.color + neighbor.color) / 3f,
-    //         bridgeColor
-    //     );
-    //     // 2. 第二个三角形
-    //     AddTriangle(c, f, center + HexMetrics.GetSecondCorner(direction));
-    //     AddTriangleColor(
-    //         cell.color,
-    //         bridgeColor,
-    //         (cell.color + neighbor.color + nextNeighbor.color) / 3f
-    //     );
-    // }
-
 
     private void Triangulate(HexDirection direction, HexCell cell)
     {
@@ -126,23 +66,23 @@ public class HexMesh : MonoBehaviour
             e = v5
          */ 
         
-        Vector3 center = cell.transform.localPosition;
-        Vector3 a = center;
-        Vector3 b = center + HexMetrics.GetFirstSolidCorner(direction);
-        Vector3 c = center + HexMetrics.GetSecondSolidCorner(direction);
+        Vector3 center = cell.Position;
+        EdgeVertices edge = new EdgeVertices(
+            center + HexMetrics.GetFirstSolidCorner(direction),
+            center + HexMetrics.GetSecondSolidCorner(direction)
+        );
 
-        AddTriangle(a, b, c);
-        AddTriangleColor(cell.color);
+        TriangulateEdgeFan(center, edge, cell.color);
 
         if (direction <= HexDirection.SE)
         {
-            TriangulateConnection(direction, cell, b, c);
+            TriangulateConnection(direction, cell, edge);
         }
 
     }
 
     // 三角化连接处的两个桥组成的长方形
-    private void TriangulateConnection(HexDirection direction, HexCell cell, Vector3 b, Vector3 c)
+    private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices edgeA)
     {
         HexCell neighbor = cell.GetNeighbor(direction);
         if (neighbor == null)
@@ -151,51 +91,49 @@ public class HexMesh : MonoBehaviour
         }
         Vector3 bridge = HexMetrics.GetBridge(direction);
 
-        Vector3 d = b + bridge;
-        Vector3 f = c + bridge;
+        bridge.y = neighbor.Position.y - cell.Position.y;
 
-        d.y = f.y = neighbor.Elevation * HexMetrics.elevationStep;
+        EdgeVertices edgeB = new EdgeVertices(
+            edgeA.L + bridge,
+            edgeA.R + bridge
+        );
+
 
         if (cell.GetEdgeType(direction) == HexEdgeType.Slope)
         {
-            TriangulateEdgeTerraces(b, c, cell, d, f, neighbor);
+            TriangulateEdgeTerraces(edgeA.L, edgeA.R, cell, edgeB.L, edgeB.R, neighbor);
         } 
         else
         {
-            AddQuad(b, c, d, f);
-            AddQuadColor(cell.color, neighbor.color);     
+            TriangulateEdgeStrip(edgeA, cell.color, edgeB, neighbor.color);
         }
 
 
         HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
         if (direction <= HexDirection.E && nextNeighbor != null)
         {
-            Vector3 e = c + HexMetrics.GetBridge(direction.Next());
-            e.y = nextNeighbor.Elevation * HexMetrics.elevationStep;
+            Vector3 e = edgeA.R + HexMetrics.GetBridge(direction.Next());
+            e.y = nextNeighbor.Position.y;
             // 找的三角化的角部里面最低的cell是哪个
             if (cell.Elevation <= neighbor.Elevation)
             {
                 if (cell.Elevation <= nextNeighbor.Elevation)
                 {
-                    TriangulateCorner(c, cell, f, neighbor, e, nextNeighbor);
+                    TriangulateCorner(edgeA.R, cell, edgeB.R, neighbor, e, nextNeighbor);
                 }
                 else
                 {
-                    TriangulateCorner(e, nextNeighbor, c, cell, f, neighbor);
+                    TriangulateCorner(e, nextNeighbor, edgeA.R, cell, edgeB.R, neighbor);
                 }
             } 
             else if (neighbor.Elevation <= nextNeighbor.Elevation)
             {
-                TriangulateCorner(f, neighbor, e, nextNeighbor, c, cell);
+                TriangulateCorner(edgeB.R, neighbor, e, nextNeighbor, edgeA.R, cell);
             } 
             else
             {
-                TriangulateCorner(e, nextNeighbor, c, cell, f, neighbor);
+                TriangulateCorner(e, nextNeighbor, edgeA.R, cell, edgeB.R, neighbor);
             }
-
-
-            // AddTriangle(c, f, e);
-            // AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
         }
     }
 
@@ -369,6 +307,9 @@ public class HexMesh : MonoBehaviour
 
     private void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
+        a = Perturb(a);
+        b = Perturb(b);
+        c = Perturb(c);
 
         Debug.DrawLine(a, b, Color.black);
         Debug.DrawLine(b, c, Color.black);
@@ -410,6 +351,12 @@ public class HexMesh : MonoBehaviour
             |    \|
             b-----c             
          */
+
+        b = Perturb(b);
+        c = Perturb(c);
+        d = Perturb(d);
+        f = Perturb(f);
+
         Debug.DrawLine(b, c, Color.black);
         Debug.DrawLine(c, d, Color.black);
         Debug.DrawLine(d, f, Color.black);
@@ -442,6 +389,35 @@ public class HexMesh : MonoBehaviour
         colors.Add(c2);
         colors.Add(c3);   
         colors.Add(c4);   
+    }
+
+    private Vector3 Perturb(Vector3 position)
+    {
+        Vector4 sample = HexMetrics.SampleNoise(position);
+        position.x += (sample.x * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        // position.y += (sample.y * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        position.z += (sample.z * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        return position;
+    }
+
+    public void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, Color color)
+    {
+        AddTriangle(center, edge.L, edge.LM);
+        AddTriangleColor(color);
+        AddTriangle(center, edge.LM, edge.RM);
+        AddTriangleColor(color);
+        AddTriangle(center, edge.RM, edge.R);
+        AddTriangleColor(color);
+    }
+
+    public void TriangulateEdgeStrip(EdgeVertices edgeA, Color colorA, EdgeVertices edgeB, Color colorB)
+    {
+        AddQuad(edgeA.L, edgeA.LM, edgeB.L, edgeB.LM);
+        AddQuadColor(colorA, colorB);
+        AddQuad(edgeA.LM, edgeA.RM, edgeB.LM, edgeB.RM);
+        AddQuadColor(colorA, colorB);
+        AddQuad(edgeA.RM, edgeA.R, edgeB.RM, edgeB.R);
+        AddQuadColor(colorA, colorB);
     }
 
 }
