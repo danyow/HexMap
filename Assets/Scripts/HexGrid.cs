@@ -139,15 +139,29 @@ public class HexGrid : MonoBehaviour
 
     public HexCell GetCell(Vector3 pos)
     {
-        pos = transform.InverseTransformPoint(pos);
+        // pos = transform.InverseTransformPoint(pos);
         HexCoordinates coordinates = HexCoordinates.FromPosition(pos);
         int index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
         return cells[index];
     }
 
-    // public void Refresh()
-    // {
-    //     hexMesh.Triangulate(cells);
-    // }
+    public HexCell GetCell(HexCoordinates coordinates)
+    {
+        int z = coordinates.Z;
+        int x = coordinates.X + z / 2;
+        if ((z < 0 || z >= cellCountZ) || (x < 0 || x >= cellCountX))
+        {
+            return null;
+        }
+        return cells[x + z * cellCountX];
+    }
+
+    public void ShowUI(bool visible)
+    {
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            chunks[i].ShowUI(visible);
+        }
+    }
 
 }
