@@ -115,6 +115,13 @@ public class HexCell : MonoBehaviour
             return (elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
         }
     }
+
+    public float RiverSufaceY
+    {
+        get {
+            return (elevation + HexMetrics.riverSurfaceElevationOffset) * HexMetrics.elevationStep;
+        }
+    }
     
     [SerializeField]
     HexCell[] neighbors;

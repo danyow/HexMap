@@ -35,6 +35,7 @@ public static class HexMetrics
     public const float elevationPerturbStrength = 0f;
     // 河床的高度
     public const float streamBedElevationOffset = -1f;
+    public const float riverSurfaceElevationOffset = -0.5f;
 
     // XZ轴的平面
     public static Vector3[] corners = {
@@ -129,5 +130,13 @@ public static class HexMetrics
             position.x * noiseScale, 
             position.z * noiseScale
         );
+    }
+    
+    public static Vector3 Perturb(Vector3 position)
+    {
+        Vector4 sample = HexMetrics.SampleNoise(position);
+        position.x += (sample.x * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        position.z += (sample.z * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        return position;
     }
 }
