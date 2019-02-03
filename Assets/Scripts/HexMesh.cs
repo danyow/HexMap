@@ -101,7 +101,7 @@ public class HexMesh : MonoBehaviour
 
         if (cell.GetEdgeType(direction) == HexEdgeType.Slope)
         {
-            TriangulateEdgeTerraces(edgeA.L, edgeA.R, cell, edgeB.L, edgeB.R, neighbor);
+            TriangulateEdgeTerraces(edgeA, cell, edgeB, neighbor);
         } 
         else
         {
@@ -137,30 +137,24 @@ public class HexMesh : MonoBehaviour
         }
     }
 
-    private void TriangulateEdgeTerraces(Vector3 beginLeft, Vector3 beginRight, HexCell beginCell, Vector3 endLeft, Vector3 endRight, HexCell endCell)
+    private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell)
     {
 
-        Vector3 d = HexMetrics.TerraceLerp(beginLeft, endLeft, 1);
-        Vector3 f = HexMetrics.TerraceLerp(beginRight, endRight, 1);
+        EdgeVertices edgeB = EdgeVertices.TerraceLerp(begin, end, 1);
         Color colorB = HexMetrics.TerraceLerp(beginCell.color, endCell.color, 1);
 
-        AddQuad(beginLeft, beginRight, d, f);
-        AddQuadColor(beginCell.color, colorB);
+        TriangulateEdgeStrip(begin, beginCell.color, edgeB, colorB);
 
         for (int i = 2; i < HexMetrics.terraceSteps; i++)
         {
-            Vector3 b      = d;
-            Vector3 c      = f;
+            EdgeVertices edgeA      = edgeB;
             Color   colorA = colorB;
-            d      = HexMetrics.TerraceLerp(beginLeft, endLeft, i);
-            f      = HexMetrics.TerraceLerp(beginRight, endRight, i);
+            edgeB = EdgeVertices.TerraceLerp(begin, end, i);
             colorB = HexMetrics.TerraceLerp(beginCell.color, endCell.color, i);
-            AddQuad(b, c, d, f);
-            AddQuadColor(colorA, colorB);
+            TriangulateEdgeStrip(edgeA, colorA, edgeB, colorB);
         }
 
-        AddQuad(d, f, endLeft, endRight);
-        AddQuadColor(colorB, endCell.color);
+        TriangulateEdgeStrip(edgeB, colorB, end, endCell.color);
     }
 
     private void TriangulateCorner(Vector3 bottom, HexCell bottomCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell)

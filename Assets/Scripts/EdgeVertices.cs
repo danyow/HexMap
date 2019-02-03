@@ -15,4 +15,14 @@ public struct EdgeVertices
         R = right;
     }
 
+    public static EdgeVertices TerraceLerp(EdgeVertices l1, EdgeVertices l2, int step)
+    {
+        EdgeVertices result;
+        result.L  = HexMetrics.TerraceLerp(l1.L, l2.L, step);
+        result.LM = HexMetrics.TerraceLerp(l1.LM, l2.LM, step);
+        result.RM = HexMetrics.TerraceLerp(l1.RM, l2.RM, step);
+        result.R  = HexMetrics.TerraceLerp(l1.R, l2.R, step);
+        return result;
+    }
+
 }
