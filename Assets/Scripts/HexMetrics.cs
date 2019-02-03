@@ -3,8 +3,12 @@
 public static class HexMetrics
 {
     public const int chunkSizeX = 5, chunkSizeZ = 5;
+    // 外径转化为内径
+    public const float outerToInner = 0.866025404f;
+    // 内径转化为外径
+    public const float innerToOuter = 1f / outerToInner;
     // 外径半径
-    public const float outerRadius = 10;                            
+    public const float outerRadius = 10f;
     // 内径半径 2分之根号3
     public const float innerRadius = outerRadius * 0.866025404f;
     // 纯色区域
@@ -24,11 +28,13 @@ public static class HexMetrics
     // 噪音源
     public static Texture2D noiseSource;
     // 微扰幅度
-    public const float cellPerturbStrength = 4f;
+    public const float cellPerturbStrength = 0f;//4f;
     // 噪音覆盖区域大小
     public const float noiseScale = 0.003f;
     // 微扰高度
     public const float elevationPerturbStrength = 0f;
+    // 河床的高度
+    public const float streamBedElevationOffset = -1f;
 
     // XZ轴的平面
     public static Vector3[] corners = {
@@ -67,6 +73,11 @@ public static class HexMetrics
     public static Vector3 GetSecondSolidCorner (HexDirection direction)
     {
         return corners[GetNextDirection(direction)] * solidFactor;
+    }
+    
+    public static Vector3 GetSolidEdgeMiddle(HexDirection direction)
+    {
+        return (corners[(int)direction] + corners[GetNextDirection(direction)]) * (0.5f * solidFactor);
     }
 
     public static Vector3 GetBridge(HexDirection direction)
