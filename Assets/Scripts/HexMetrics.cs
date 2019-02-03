@@ -7,11 +7,11 @@ public static class HexMetrics
     // 内径半径 2分之根号3
     public const float innerRadius = outerRadius * 0.866025404f;
     // 纯色区域
-    public const float solidFactor = 0.75f;
+    public const float solidFactor = 0.8f;
     // 混合区域
     public const float blendFactor = 1 - solidFactor;
     // 阶梯高度
-    public const float elevationStep = 5;
+    public const float elevationStep = 3;
     // 每个斜坡的平台数木
     public const int terracesPerSlope = 2;
     // 斜坡数
@@ -23,11 +23,11 @@ public static class HexMetrics
     // 噪音源
     public static Texture2D noiseSource;
     // 微扰幅度
-    public const float cellPerturbStrength = 5;
+    public const float cellPerturbStrength = 4f;
     // 噪音覆盖区域大小
     public const float noiseScale = 0.003f;
     // 微扰高度
-    public const float elevationPerturbStrength = 1.5f;
+    public const float elevationPerturbStrength = 0f;
 
     // XZ轴的平面
     public static Vector3[] corners = {
