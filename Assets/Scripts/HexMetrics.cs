@@ -2,6 +2,7 @@
 
 public static class HexMetrics
 {
+    public const int chunkSizeX = 5, chunkSizeZ = 5;
     // 外径半径
     public const float outerRadius = 10;                            
     // 内径半径 2分之根号3

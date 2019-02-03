@@ -6,22 +6,18 @@ using UnityEngine;
 public class HexMesh : MonoBehaviour
 {
     Mesh _mesh;
-    // 顶点的列表
-    List<Vector3> vertices;
-    // 三角的列表
-    List<int> triangles;
-    // 颜色表
-    List<Color> colors;
-
     MeshCollider meshCollider;
+    // 顶点的列表
+    static List<Vector3> vertices = new List<Vector3>();
+    // 三角的列表
+    static List<int> triangles = new List<int>();
+    // 颜色表
+    static List<Color> colors = new List<Color>();
 
     private void Awake() {
         GetComponent<MeshFilter>().mesh = _mesh = new Mesh();
         meshCollider = gameObject.AddComponent<MeshCollider>();
         _mesh.name   = "Hex Mesh";
-        vertices     = new List<Vector3>();
-        triangles    = new List<int>();
-        colors       = new List<Color>();
     }
 
     // 三角化

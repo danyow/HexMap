@@ -20,3 +20,10 @@
 [Unity 六边形地图系列(三) : 高度](http://gad.qq.com/program/translateview/7173973)
 
 > 
+
+
+[Unity 六边形地图系列(四) : 不规则性](http://gad.qq.com/college/articledetail/7173976)
+
+> 噪音图片加入 版本不一致问题
+
+[Unity 六边形地图系列(五) : 更大的地图](http://gad.qq.com/program/translateview/7174178)
