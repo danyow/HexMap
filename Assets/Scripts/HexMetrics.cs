@@ -10,7 +10,7 @@ public static class HexMetrics
     // 外径半径
     public const float outerRadius = 10f;
     // 内径半径 2分之根号3
-    public const float innerRadius = outerRadius * 0.866025404f;
+    public const float innerRadius = outerRadius * outerToInner;
     // 纯色区域
     public const float solidFactor = 0.8f;
     // 混合区域
@@ -131,12 +131,12 @@ public static class HexMetrics
             position.z * noiseScale
         );
     }
-    
+
     public static Vector3 Perturb(Vector3 position)
     {
-        Vector4 sample = HexMetrics.SampleNoise(position);
-        position.x += (sample.x * 2f - 1f) * HexMetrics.cellPerturbStrength;
-        position.z += (sample.z * 2f - 1f) * HexMetrics.cellPerturbStrength;
+        Vector4 sample = SampleNoise(position);
+        position.x += (sample.x * 2f - 1f) * cellPerturbStrength;
+        position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
         return position;
     }
 }

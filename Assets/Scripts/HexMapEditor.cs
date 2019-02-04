@@ -57,7 +57,7 @@ public class HexMapEditor : MonoBehaviour
             {
                 isDrag = false;
             }
-            EditCells(hexGrid.GetCell(hit.point));
+			EditCells(currentCell);
             previousCell = currentCell;
             isDrag = true;
         }
