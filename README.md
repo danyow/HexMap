@@ -27,3 +27,7 @@
 > 噪音图片加入 版本不一致问题
 
 [Unity 六边形地图系列(五) : 更大的地图](http://gad.qq.com/program/translateview/7174178)
+
+[Unity 六边形地图系列(六) : 河流](http://gad.qq.com/program/translateview/7174179)
+
+[Unity 六边形地图系列(七) : 道路](http://gad.qq.com/program/translateview/7175399)
