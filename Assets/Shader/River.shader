@@ -14,7 +14,7 @@
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard alpha //fullforwardshadows
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
@@ -39,20 +39,21 @@
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            // Albedo comes from a texture tinted by color
-            fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
-            o.Albedo = c.rgb;
-            // Metallic and smoothness come from slider variables
-            o.Metallic = _Metallic;
+            float2 uv = IN.uv_MainTex;
+            uv.x = uv.x * 0.0625 + _Time.y * 0.005;
+            uv.y -= _Time.y * 0.25;
+            float4 noise = tex2D(_MainTex, uv);
+
+            float2 uv2 = IN.uv_MainTex;
+            uv2.x = uv2.x * 0.0625 + _Time.y * 0.0052;
+            uv2.y -= _Time.y * 0.23;
+            float4 noise2 = tex2D(_MainTex, uv2);
+
+            fixed4 c = saturate(_Color * (noise.r * noise2.a));
+            o.Albedo     = c.rgb;
+            o.Metallic   = _Metallic;
             o.Smoothness = _Glossiness;
-            o.Alpha = c.a;
-            // if (IN.uv_MainTex.y < 0)
-            // {
-            //     IN.uv_MainTex += 1;
-            // }
-            IN.uv_MainTex.y -= _Time.y;
-            IN.uv_MainTex.y = frac(IN.uv_MainTex.y);
-            o.Albedo.rg = IN.uv_MainTex;
+            o.Alpha      = c.a;
         }
         ENDCG
     }
