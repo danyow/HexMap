@@ -144,6 +144,13 @@ public class HexCell : MonoBehaviour
             return false;
         }   
     }
+
+    // 获得河流的流入和流出方向
+    public HexDirection RiverBeginOrEndDirection{
+        get {
+            return hasIncomingRiver ? incomingRiver : outgoingRiver;
+        }
+    }
     
     [SerializeField]
     HexCell[] neighbors;
