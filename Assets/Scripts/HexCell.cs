@@ -116,7 +116,7 @@ public class HexCell : MonoBehaviour
         }
     }
 
-    public float RiverSufaceY
+    public float RiverSurfaceY
     {
         get {
             return (elevation + HexMetrics.riverSurfaceElevationOffset) * HexMetrics.elevationStep;

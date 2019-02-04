@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Default-Material
+  m_Name: River Material
   m_Shader: {fileID: 4800000, guid: f200e8532308149039b6027410c133a7, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
