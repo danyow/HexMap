@@ -1,4 +1,4 @@
-﻿Shader "Custom/Road"
+﻿Shader "Custom/Water"
 {
     Properties
     {
@@ -9,16 +9,13 @@
     }
     SubShader
     {
-        Tags { 
-            "RenderType"="Opaque" 
-            "Queue"="Geometry+1"
-        }
+        // Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 200
-        Offset -1, -1
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows decal:blend
+        #pragma surface surf Standard alpha //fullforwardshadows
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
@@ -44,17 +41,25 @@
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            // Albedo comes from a texture tinted by color
-            // fixed4 c = fixed4(IN.uv_MainTex, 1, 1);
-            float4 noise = tex2D(_MainTex, IN.worldPos.xz * 0.025);
-            fixed4 c = _Color * (noise.y * 0.75 + 0.25);
-            float blend = IN.uv_MainTex.x;
-            blend *= noise.x + 0.5;
-            blend = smoothstep(0.4, 0.7, blend);
-            o.Albedo = c.rgb;
-            o.Metallic = _Metallic;
+            float2 uv1 = IN.worldPos.xz;
+            uv1.y += _Time.y;
+            float4 noise1 = tex2D(_MainTex, uv1 * 0.025);
+
+            float2 uv2 = IN.worldPos.xz;
+            uv2.x += _Time.y;
+            float4 noise2 = tex2D(_MainTex, uv2 * 0.025);
+
+            float blendWave = sin((IN.worldPos.x + IN.worldPos.z) * 0.1 + (noise1.y + noise2.z) + _Time.y);
+            blendWave *= blendWave;
+
+            float waves = lerp(noise1.z, noise1.w, blendWave) + lerp(noise2.x, noise2.y, blendWave);
+            waves = smoothstep(0.75, 2, waves);
+
+            fixed4 c = saturate(_Color + waves);
+            o.Albedo     = c.rgb;
+            o.Metallic   = _Metallic;
             o.Smoothness = _Glossiness;
-            o.Alpha = blend;
+            o.Alpha      = c.a;
         }
         ENDCG
     }

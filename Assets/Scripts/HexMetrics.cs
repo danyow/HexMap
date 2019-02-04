@@ -35,7 +35,8 @@ public static class HexMetrics
     public const float elevationPerturbStrength = 4f;
     // 河床的高度
     public const float streamBedElevationOffset = -1.75f;
-    public const float riverSurfaceElevationOffset = -0.5f;
+    // 河流高度改成水面高度
+    public const float waterElevationOffset = -0.5f;
 
     // XZ轴的平面
     public static Vector3[] corners = {
