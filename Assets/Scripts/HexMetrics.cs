@@ -32,9 +32,9 @@ public static class HexMetrics
     // 噪音覆盖区域大小
     public const float noiseScale = 0.003f;
     // 微扰高度
-    public const float elevationPerturbStrength = 0f;
+    public const float elevationPerturbStrength = 4f;
     // 河床的高度
-    public const float streamBedElevationOffset = -1f;
+    public const float streamBedElevationOffset = -1.75f;
     public const float riverSurfaceElevationOffset = -0.5f;
 
     // XZ轴的平面
