@@ -153,10 +153,14 @@ public class HexGridChunk : MonoBehaviour
                         cell.HasIncomingRiver && cell.IncomingRiver == direction
                     );
                 }
-                else if (!neighbor.IsUnderwater && cell.Elevation > neighbor.WaterLevel)
+                else if (cell.Elevation > neighbor.WaterLevel)
                 {
-                    TriangulateWaterfallInWater(edgeB.RM, edgeB.LM, edgeA.RM, edgeA.LM, neighbor.RiverSurfaceY, cell.RiverSurfaceY, cell.WaterSurfaceY);
+                    TriangulateWaterfallInWater(edgeA.LM, edgeA.RM, edgeB.LM, edgeB.RM, cell.RiverSurfaceY, neighbor.RiverSurfaceY, neighbor.WaterSurfaceY);
                 }
+            }
+            else if (!neighbor.IsUnderwater && neighbor.Elevation > neighbor.WaterLevel)
+            {
+                TriangulateWaterfallInWater(edgeB.RM, edgeB.LM, edgeA.RM, edgeA.LM, neighbor.RiverSurfaceY, cell.RiverSurfaceY, cell.WaterSurfaceY);
             }
         }
 
