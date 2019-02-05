@@ -37,6 +37,10 @@ public static class HexMetrics
     public const float streamBedElevationOffset = -1.75f;
     // 河流高度改成水面高度
     public const float waterElevationOffset = -0.5f;
+    // 水的区域
+    public const float waterFactor = 0.6f;
+    // 水和岸边的混合区域
+    public const float waterBlendFactor = 1f - waterFactor;
 
     // XZ轴的平面
     public static Vector3[] corners = {
@@ -139,5 +143,20 @@ public static class HexMetrics
         position.x += (sample.x * 2f - 1f) * cellPerturbStrength;
         position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
         return position;
+    }
+
+    public static Vector3 GetFirstWaterCorner(HexDirection direction)
+    {
+        return corners[(int)direction] * waterFactor;
+    }
+
+    public static Vector3 GetSecondWaterCorner(HexDirection direction)
+    {
+        return corners[GetNextDirection(direction)] * waterFactor;
+    }
+
+    public static Vector3 GetWaterBridge(HexDirection direction)
+    {
+        return (corners[(int)direction] + corners[GetNextDirection(direction)]) * waterBlendFactor;
     }
 }

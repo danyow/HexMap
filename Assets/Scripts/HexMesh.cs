@@ -128,6 +128,22 @@ public class HexMesh : MonoBehaviour
         triangles.Add(vertexIndex + 3);
     }
 
+    public void AddQuadUnperturbed(Vector3 b, Vector3 c, Vector3 d, Vector3 f)
+    {
+        int vertexIndex = vertices.Count;
+        vertices.Add(b);
+        vertices.Add(c);
+        vertices.Add(d);
+        vertices.Add(f);
+
+        triangles.Add(vertexIndex);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 1);
+        triangles.Add(vertexIndex + 2);
+        triangles.Add(vertexIndex + 3); 
+    }
+    
     public void AddQuadColor(Color c1)
     {
         colors.Add(c1);
