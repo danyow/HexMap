@@ -43,14 +43,7 @@ public class HexCell : MonoBehaviour
             uiPosition.z = -pos.y;
             uiRect.localPosition = uiPosition;
 
-            if (hasOutgoingRiver && elevation < GetNeighbor(outgoingRiver).elevation)
-            {
-                RemoveOutgoingRiver();
-            }
-            if (hasIncomingRiver && elevation > GetNeighbor(incomingRiver).elevation)
-            {
-                RemoveIncomingRiver();
-            }
+            ValidateRivers();
 
             for (int i = 0; i < roads.Length; i++)
             {
@@ -170,6 +163,7 @@ public class HexCell : MonoBehaviour
                 return;
             }
             waterLevel = value;
+            ValidateRivers();
             Refresh();
         }
     }
@@ -256,7 +250,7 @@ public class HexCell : MonoBehaviour
         }
         HexCell neighbor = GetNeighbor(direction);
         // 确定有邻居 而且坡不能向上
-        if (!neighbor || elevation < neighbor.elevation)
+        if (!IsValidRiverDestination(neighbor))
         {
             return;
         }
@@ -334,5 +328,23 @@ public class HexCell : MonoBehaviour
     {
         int difference = elevation - GetNeighbor(direction).elevation;
         return Mathf.Abs(difference);
+    }
+
+    // 河流流出是否有效
+    private bool IsValidRiverDestination(HexCell neighbor)
+    {
+        return neighbor && (elevation >= neighbor.elevation || waterLevel == neighbor.elevation);
+    }
+
+    private void ValidateRivers()
+    {
+        if (hasOutgoingRiver && !IsValidRiverDestination(GetNeighbor(outgoingRiver)))
+        {
+            RemoveOutgoingRiver();
+        }
+        if (hasIncomingRiver && !GetNeighbor(incomingRiver).IsValidRiverDestination(this))
+        {
+            RemoveIncomingRiver();
+        }
     }
 }

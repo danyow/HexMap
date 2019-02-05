@@ -772,7 +772,7 @@ public class HexGridChunk : MonoBehaviour
 
         if (cell.HasRiverThroughEdge(direction))
         {
-            TriangulateEstuary(edgeA, edgeB);
+            TriangulateEstuary(edgeA, edgeB, cell.IncomingRiver == direction);
         }
         else
         {
@@ -818,7 +818,7 @@ public class HexGridChunk : MonoBehaviour
         rivers.AddQuadUV(0f, 1f, 0.8f, 1f);
     }
 
-    private void TriangulateEstuary(EdgeVertices edgeA, EdgeVertices edgeB)
+    private void TriangulateEstuary(EdgeVertices edgeA, EdgeVertices edgeB, bool incomingRiver)
     {
         waterShore.AddTriangle(edgeB.L, edgeA.LM, edgeA.L);
         waterShore.AddTriangle(edgeB.R, edgeA.R, edgeA.RM);
@@ -842,15 +842,30 @@ public class HexGridChunk : MonoBehaviour
         estuaries.AddQuadUV(
             new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 1f)
         );
-        estuaries.AddQuadUV2(
-            new Vector2(1.5f, 1f), new Vector2(0.7f, 1.15f), new Vector2(1f, 0.8f), new Vector2(0.5f, 1.1f)
-        );
-        estuaries.AddTriangleUV2(
-            new Vector2(0.5f, 1.1f), new Vector2(1f, 0.8f), new Vector2(0f, 0.8f)
-        );
-        estuaries.AddQuadUV2(
-            new Vector2(0.5f, 1.1f), new Vector2(0.3f, 1.15f), new Vector2(0f, 0.8f), new Vector2(-0.5f, 1f)
-        );
+        if (incomingRiver)
+        {
+            estuaries.AddQuadUV2(
+                new Vector2(1.5f, 1f), new Vector2(0.7f, 1.15f), new Vector2(1f, 0.8f), new Vector2(0.5f, 1.1f)
+            );
+            estuaries.AddTriangleUV2(
+                new Vector2(0.5f, 1.1f), new Vector2(1f, 0.8f), new Vector2(0f, 0.8f)
+            );
+            estuaries.AddQuadUV2(
+                new Vector2(0.5f, 1.1f), new Vector2(0.3f, 1.15f), new Vector2(0f, 0.8f), new Vector2(-0.5f, 1f)
+            );
+        }
+        else
+        {
+            estuaries.AddQuadUV2(
+                new Vector2(-0.5f, -0.2f), new Vector2(0.3f, -0.35f), new Vector2(0f, 0f), new Vector2(0.5f, -0.3f)
+            );
+            estuaries.AddTriangleUV2(
+                new Vector2(0.5f, -0.3f), new Vector2(0f, 0f), new Vector2(1f, 0f)
+            );
+            estuaries.AddQuadUV2(
+                new Vector2(0.5f, -0.3f), new Vector2(0.7f, -0.35f), new Vector2(1f, 0f), new Vector2(1.5f, -0.2f)
+            );
+        }
     }
 
 }
